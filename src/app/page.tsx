@@ -11,23 +11,21 @@ const features = [
 export default function HomePage() {
   return (
     <AppShell>
-      <section className="grid items-center gap-10 py-8 lg:grid-cols-[1.1fr_0.9fr] lg:py-16">
+      <section className="grid items-center gap-10 py-8 lg:grid-cols-[1fr_0.9fr] lg:py-16">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-slate-500">SplitCart</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-blue-600">SplitCart</p>
           <h1 className="mt-4 max-w-xl text-4xl font-semibold tracking-tight text-slate-950 md:text-5xl">Split shared carts without the spreadsheet.</h1>
-          <p className="mt-5 max-w-xl text-lg text-slate-600">Assign items, divide tax and shipping proportionally, and generate a clean payment summary for your group.</p>
+          <p className="mt-5 max-w-xl text-lg text-slate-600">Assign items, split tax and shipping proportionally, and copy a clean payment summary for your group.</p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/dashboard" className="rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-700">Get Started</Link>
-            <Link href="/carts" className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">View Demo</Link>
+            <Link href="/dashboard" className="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-slate-800">Get Started</Link>
           </div>
         </div>
-        <aside className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-semibold text-slate-900">What it does</h2>
+        <aside className="rounded-3xl border border-blue-100 bg-gradient-to-br from-blue-50 to-white p-6 shadow-sm shadow-blue-100">
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-700">Why teams like it</p>
           <ul className="mt-4 space-y-3 text-sm text-slate-600">
-            <li>• Create a cart and add roommates or friends.</li>
-            <li>• Assign items to one or many people.</li>
-            <li>• Split shared costs and discounts fairly.</li>
-            <li>• Copy a clean payment summary in one click.</li>
+            <li>• Add roommates, friends, or classmates in seconds.</li>
+            <li>• Share tax, shipping, fees, and discounts fairly.</li>
+            <li>• Save and reopen past carts whenever you need them.</li>
           </ul>
         </aside>
       </section>

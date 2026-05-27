@@ -21,11 +21,13 @@ export default function DashboardPage() {
   const metrics = useMemo(() => {
     const totals = carts.map((cart) => calculateCartSplit(cart).grandTotal);
     const totalAmount = totals.reduce((sum, value) => sum + value, 0);
+    const totalItems = carts.reduce((sum, cart) => sum + cart.items.length, 0);
+    const averageCart = carts.length > 0 ? totalAmount / carts.length : 0;
     const largest = carts.reduce((best, cart) => (calculateCartSplit(cart).grandTotal > calculateCartSplit(best).grandTotal ? cart : best), carts[0]);
     const recent = [...carts].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 4);
-    const participantCount = recent.reduce((sum, cart) => sum + cart.participants.length, 0);
+    const activeParticipants = carts.reduce((sum, cart) => sum + cart.participants.length, 0);
 
-    return { totalAmount, largest, recent, participantCount };
+    return { totalAmount, totalItems, averageCart, largest, recent, activeParticipants };
   }, [carts]);
 
   return (
@@ -39,10 +41,10 @@ export default function DashboardPage() {
       </div>
 
       <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-        <Card title="Saved carts" subtitle="Live demo data in local storage"><p className="text-3xl font-semibold text-slate-950">{carts.length}</p></Card>
-        <Card title="Total split" subtitle="Across all saved carts"><p className="text-3xl font-semibold text-slate-950">{formatCurrency(metrics.totalAmount)}</p></Card>
-        <Card title="Most recent carts" subtitle="Latest activity"><p className="text-3xl font-semibold text-slate-950">{metrics.recent.length}</p></Card>
-        <Card title="Participants" subtitle="Recent cart participants"><p className="text-3xl font-semibold text-slate-950">{metrics.participantCount}</p></Card>
+        <Card title="Saved carts" subtitle="Current carts in your workspace"><p className="text-3xl font-semibold text-slate-950">{carts.length}</p></Card>
+        <Card title="Total split" subtitle="Estimated amount across all saved carts"><p className="text-3xl font-semibold text-slate-950">{formatCurrency(metrics.totalAmount)}</p></Card>
+        <Card title="Average cart" subtitle="Typical split amount"><p className="text-3xl font-semibold text-slate-950">{formatCurrency(metrics.averageCart)}</p></Card>
+        <Card title="Total items" subtitle="Items currently tracked"><p className="text-3xl font-semibold text-slate-950">{metrics.totalItems}</p></Card>
       </div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_0.9fr]">
@@ -60,6 +62,9 @@ export default function DashboardPage() {
               </article>
             ))}
           </div>
+        </Card>
+        <Card title="Active participants" subtitle="People currently listed across your carts.">
+          <p className="text-3xl font-semibold text-slate-950">{metrics.activeParticipants}</p>
         </Card>
         <Card title="Largest cart" subtitle="Highest total amount currently saved.">
           {metrics.largest ? (

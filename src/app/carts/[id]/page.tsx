@@ -25,6 +25,8 @@ export default function CartDetailPage() {
   const [itemQuantity, setItemQuantity] = useState("1");
   const [selectedParticipants, setSelectedParticipants] = useState<string[]>([]);
   const [costs, setCosts] = useState({ tax_amount: 0, shipping_amount: 0, service_fee_amount: 0, discount_amount: 0 });
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [editingAssignments, setEditingAssignments] = useState<string[]>([]);
 
   useEffect(() => {
     const found = getDemoCarts().find((entry) => entry.id === params.id);
@@ -98,6 +100,37 @@ export default function CartDetailPage() {
     persist({ ...cart, items: cart.items.filter((item) => item.id !== itemId), updated_at: new Date().toISOString() });
   }
 
+  function startEditingAssignments(itemId: string) {
+    const item = cart?.items.find((entry) => entry.id === itemId);
+    if (!item) return;
+    setEditingItemId(itemId);
+    setEditingAssignments(item.assignedParticipantIds);
+  }
+
+  function toggleAssignment(participantId: string) {
+    setEditingAssignments((current) =>
+      current.includes(participantId)
+        ? current.filter((id) => id !== participantId)
+        : [...current, participantId],
+    );
+  }
+
+  function saveAssignments(itemId: string) {
+    if (!cart || editingAssignments.length === 0) return;
+    const nextCart = {
+      ...cart,
+      items: cart.items.map((item) =>
+        item.id === itemId
+          ? { ...item, assignedParticipantIds: editingAssignments }
+          : item,
+      ),
+      updated_at: new Date().toISOString(),
+    };
+    persist(nextCart);
+    setEditingItemId(null);
+    setEditingAssignments([]);
+  }
+
   function removeParticipant(participantId: string) {
     if (!cart) return;
     const hasAssignments = cart.items.some((item) => item.assignedParticipantIds.includes(participantId));
@@ -166,7 +199,7 @@ export default function CartDetailPage() {
               </div>
 
               <div className="mt-5 rounded-2xl border border-blue-100 bg-blue-50 p-4">
-                <p className="text-sm font-semibold text-slate-900">Assign participants</p>
+                <p className="text-sm font-semibold text-slate-900">Who is paying for this item?</p>
                 <p className="mt-1 text-sm text-slate-600">Select one or more people for this item. Shared items are split evenly.</p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   {cart.participants.length === 0 ? (
@@ -183,29 +216,56 @@ export default function CartDetailPage() {
               </div>
 
               <div className="mt-5 flex items-center justify-between gap-3">
-                <p className="text-sm text-slate-500">Choose who should pay for this item.</p>
+                <p className="text-sm text-slate-500">Pick the people who should cover this item.</p>
                 <Button onClick={addItem}>Add item</Button>
               </div>
 
               <div className="mt-5 space-y-3">
                 {cart.items.length === 0 ? (
                   <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">No items yet. Add your first grocery item or household purchase here.</div>
-                ) : cart.items.map((item) => (
-                  <article key={item.id} className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-100">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <h3 className="text-base font-semibold text-slate-900">{item.name}</h3>
-                        <p className="mt-1 text-sm text-slate-500">{item.quantity} × {formatCurrency(item.price)} = <strong className="text-slate-900">{formatCurrency(item.price * item.quantity)}</strong></p>
+                ) : cart.items.map((item) => {
+                  const isEditing = editingItemId === item.id;
+                  return (
+                    <article key={item.id} className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-100">
+                      <div className="flex flex-wrap items-start justify-between gap-4">
+                        <div>
+                          <h3 className="text-base font-semibold text-slate-900">{item.name}</h3>
+                          <p className="mt-1 text-sm text-slate-500">{item.quantity} × {formatCurrency(item.price)} = <strong className="text-slate-900">{formatCurrency(item.price * item.quantity)}</strong></p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button variant="ghost" onClick={() => startEditingAssignments(item.id)}>Edit assignment</Button>
+                          <Button variant="danger" onClick={() => removeItem(item.id)}>Delete</Button>
+                        </div>
                       </div>
-                      <Button variant="ghost" onClick={() => removeItem(item.id)}>Delete</Button>
-                    </div>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {item.assignedParticipantIds.length === 0 ? <span className="rounded-full bg-amber-50 px-3 py-1 text-xs text-amber-700">No participants assigned</span> : item.assignedParticipantIds.map((id) => (
-                        <span key={id} className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-700">{cart.participants.find((participant) => participant.id === id)?.name || id}</span>
-                      ))}
-                    </div>
-                  </article>
-                ))}
+
+                      {isEditing ? (
+                        <div className="mt-4 rounded-2xl border border-blue-100 bg-blue-50 p-4">
+                          <p className="text-sm font-semibold text-slate-900">Assigned to</p>
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            {cart.participants.map((participant) => {
+                              const checked = editingAssignments.includes(participant.id);
+                              return (
+                                <button key={participant.id} type="button" onClick={() => toggleAssignment(participant.id)} className={`rounded-full border px-3 py-2 text-sm font-medium ${checked ? "border-blue-600 bg-blue-600 text-white" : "border-slate-200 bg-white text-slate-700 hover:border-blue-200 hover:bg-blue-100"}`}>
+                                  {participant.name}
+                                </button>
+                              );
+                            })}
+                          </div>
+                          <div className="mt-4 flex flex-wrap gap-2">
+                            <Button onClick={() => saveAssignments(item.id)} disabled={editingAssignments.length === 0}>Save assignment</Button>
+                            <Button variant="ghost" onClick={() => { setEditingItemId(null); setEditingAssignments([]); }}>Cancel</Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {item.assignedParticipantIds.length === 0 ? <span className="rounded-full bg-amber-50 px-3 py-1 text-xs text-amber-700">No participants assigned</span> : item.assignedParticipantIds.map((id) => (
+                            <span key={id} className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-700">{cart.participants.find((participant) => participant.id === id)?.name || id}</span>
+                          ))}
+                        </div>
+                      )}
+                    </article>
+                  );
+                })}
               </div>
             </Card>
 
