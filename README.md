@@ -2,6 +2,8 @@
 
 SplitCart is a polished student project for splitting shared shopping carts, assigning items to participants, and calculating a clear payment summary for roommates, friends, and student groups.
 
+DEMO VIDEO HERE -> https://youtu.be/Oor7Ig7dTW0
+
 ## Features
 - Create and save shared carts
 - Add participants and assign items to one or many people
@@ -17,19 +19,12 @@ SplitCart is a polished student project for splitting shared shopping carts, ass
 - Supabase Postgres schema files included
 
 ## Screenshots
-- Placeholder for a hero screenshot
-- Placeholder for a cart detail screenshot
+<img width="1719" height="854" alt="Screenshot 2026-05-27 at 5 45 51 PM" src="https://github.com/user-attachments/assets/a4b4dbbd-b3a7-4138-a8fd-90b08631a167" />
 
 ## Database setup
 1. Create a Supabase project.
 2. Run the SQL in `supabase/schema.sql` in the SQL editor.
 3. Optionally load `supabase/seed.sql` for sample data.
-
-## Environment variables
-Create a `.env.local` file using `.env.example`:
-
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
 
 ## How to run locally
 1. npm install
@@ -46,16 +41,3 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=
 - Does not connect directly to retailer carts
 - Does not process payments
 - Does not include live collaboration yet
-
-## Future improvements
-- Shared cart invite links
-- Real-time collaboration
-- Receipt upload and parsing
-- Payment app links
-- Chrome extension companion
-- Multi-currency support
-- PDF / CSV export
-
-## Resume bullet points
-1. Built a full-stack expense-splitting web app using Next.js, TypeScript, Supabase, and PostgreSQL that lets users create shared carts, assign items to participants, and calculate proportional tax, shipping, fees, and discounts.
-2. Implemented authenticated user-specific cart management with protected routes, row-level security, CRUD workflows, reusable UI components, and copyable payment summaries.
