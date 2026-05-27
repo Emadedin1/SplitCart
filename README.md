@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SplitCart
 
-## Getting Started
+SplitCart is a polished student project for splitting shared shopping carts, assigning items to participants, and calculating a clear payment summary for roommates, friends, and student groups.
 
-First, run the development server:
+## Features
+- Create and save shared carts
+- Add participants and assign items to one or many people
+- Split tax, shipping, fees, and discounts proportionally
+- View a clear payment summary and copy it to a group chat
+- Ready for a Vercel deployment and a Supabase-backed version
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Tech Stack
+- Next.js
+- TypeScript
+- React
+- Tailwind CSS
+- Supabase Postgres schema files included
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Screenshots
+- Placeholder for a hero screenshot
+- Placeholder for a cart detail screenshot
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Database setup
+1. Create a Supabase project.
+2. Run the SQL in `supabase/schema.sql` in the SQL editor.
+3. Optionally load `supabase/seed.sql` for sample data.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Environment variables
+Create a `.env.local` file using `.env.example`:
 
-## Learn More
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
 
-To learn more about Next.js, take a look at the following resources:
+## How to run locally
+1. npm install
+2. npm run dev
+3. Visit http://localhost:3000
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## How to deploy to Vercel
+1. Push the project to GitHub.
+2. Import the repo in Vercel.
+3. Add the Supabase environment variables in the project settings.
+4. Deploy.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Known limitations
+- Does not connect directly to retailer carts
+- Does not process payments
+- Does not include live collaboration yet
 
-## Deploy on Vercel
+## Future improvements
+- Shared cart invite links
+- Real-time collaboration
+- Receipt upload and parsing
+- Payment app links
+- Chrome extension companion
+- Multi-currency support
+- PDF / CSV export
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Resume bullet points
+1. Built a full-stack expense-splitting web app using Next.js, TypeScript, Supabase, and PostgreSQL that lets users create shared carts, assign items to participants, and calculate proportional tax, shipping, fees, and discounts.
+2. Implemented authenticated user-specific cart management with protected routes, row-level security, CRUD workflows, reusable UI components, and copyable payment summaries.
