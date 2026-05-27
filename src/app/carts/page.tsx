@@ -30,24 +30,33 @@ export default function CartsPage() {
 
   return (
     <AppShell>
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="text-sm uppercase tracking-[0.2em] text-slate-500">Carts</p>
-          <h1 className="mt-2 text-3xl font-semibold text-slate-950">Browse and reopen your saved carts.</h1>
+      <section className="space-y-6">
+        <div className="flex flex-wrap items-end justify-between gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-100">
+          <div>
+            <p className="text-sm uppercase tracking-[0.2em] text-slate-500">Carts</p>
+            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">Your saved carts</h1>
+            <p className="mt-2 max-w-2xl text-sm text-slate-500">Search, sort, and reopen your shared orders in one place.</p>
+          </div>
+          <Link href="/carts/new"><Button>New cart</Button></Link>
         </div>
-        <Link href="/carts/new"><Button>New cart</Button></Link>
-      </div>
-      <Card title="Filter carts" subtitle="Search by title or store and sort by recent activity.">
-        <div className="grid gap-4 md:grid-cols-[1fr_220px]">
-          <input className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm" placeholder="Search by title or store" value={query} onChange={(e) => setQuery(e.target.value)} />
-          <select className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-            <option value="newest">Newest</option>
-            <option value="date">Cart date</option>
-            <option value="total">Total amount</option>
-          </select>
-        </div>
-      </Card>
-      {visibleCarts.length === 0 ? <Card title="No carts yet">Create your first cart and it will appear here.</Card> : <div className="mt-6 grid gap-6 md:grid-cols-2">{visibleCarts.map((cart) => <CartCard key={cart.id} cart={cart} />)}</div>}
+
+        <Card title="Find a cart" subtitle="Filter by name or store to quickly jump back into a split.">
+          <div className="grid gap-4 md:grid-cols-[1fr_220px]">
+            <input className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 shadow-sm outline-none transition focus:border-blue-300 focus:bg-white focus:ring-2 focus:ring-blue-100" placeholder="Search by title or store" value={query} onChange={(e) => setQuery(e.target.value)} />
+            <select className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 shadow-sm outline-none transition focus:border-blue-300 focus:bg-white focus:ring-2 focus:ring-blue-100" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+              <option value="newest">Newest</option>
+              <option value="date">Cart date</option>
+              <option value="total">Total amount</option>
+            </select>
+          </div>
+        </Card>
+
+        {visibleCarts.length === 0 ? (
+          <Card title="No carts yet">Create your first cart and it will appear here with your saved totals and participants.</Card>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2">{visibleCarts.map((cart) => <CartCard key={cart.id} cart={cart} />)}</div>
+        )}
+      </section>
     </AppShell>
   );
 }
