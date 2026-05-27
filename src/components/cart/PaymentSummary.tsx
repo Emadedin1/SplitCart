@@ -4,10 +4,12 @@ import type { Cart } from "@/types/cart";
 
 export function PaymentSummary({ cart }: { cart: Cart }) {
   const summary = calculateCartSplit(cart);
+  const hasUnassignedItems = cart.items.some((item) => item.assignedParticipantIds.length === 0);
 
   return (
     <div className="space-y-4">
       <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-700">Subtotal: <strong className="text-slate-900">{formatCurrency(summary.subtotal)}</strong></div>
+      {hasUnassignedItems ? <div className="rounded-2xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">Some items are unassigned and are not included in the split yet.</div> : null}
       {summary.splits.map((entry) => (
         <article key={entry.participant.id} className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-100">
           <div className="flex items-start justify-between gap-4">

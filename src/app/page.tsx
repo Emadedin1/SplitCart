@@ -5,7 +5,6 @@ const features = [
   { title: "Assign items", text: "Mark who owes for each product, even when an item is shared." },
   { title: "Split tax and shipping", text: "Apply proportional sharing for fees, discounts, and service charges." },
   { title: "Save and revisit", text: "Keep past carts handy for group orders and roommate budgets." },
-  { title: "Copy summaries", text: "Send a clean payment summary straight to your group chat." },
 ];
 
 export default function HomePage() {
@@ -20,16 +19,16 @@ export default function HomePage() {
             <Link href="/dashboard" className="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-slate-800">Get Started</Link>
           </div>
         </div>
-        <aside className="rounded-3xl border border-blue-100 bg-gradient-to-br from-blue-50 to-white p-6 shadow-sm shadow-blue-100">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-700">Why teams like it</p>
+        <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-700">Quick start</p>
           <ul className="mt-4 space-y-3 text-sm text-slate-600">
-            <li>• Add roommates, friends, or classmates in seconds.</li>
-            <li>• Share tax, shipping, fees, and discounts fairly.</li>
-            <li>• Save and reopen past carts whenever you need them.</li>
+            <li>1. Create a cart and add your participants.</li>
+            <li>2. Add items and assign them to the right people.</li>
+            <li>3. Review the payment summary and share it instantly.</li>
           </ul>
-        </aside>
+        </article>
       </section>
-      <section className="mt-4 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+      <section className="mt-4 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         {features.map((feature) => (
           <article key={feature.title} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
             <h3 className="text-lg font-semibold text-slate-900">{feature.title}</h3>

@@ -26,7 +26,7 @@ export default function CartDetailPage() {
   const [selectedParticipants, setSelectedParticipants] = useState<string[]>([]);
   const [costs, setCosts] = useState({ tax_amount: 0, shipping_amount: 0, service_fee_amount: 0, discount_amount: 0 });
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
-  const [editingAssignments, setEditingAssignments] = useState<string[]>([]);
+  const [editingItemDraft, setEditingItemDraft] = useState({ name: "", price: "0", quantity: "1", assignedParticipantIds: [] as string[] });
 
   useEffect(() => {
     const found = getDemoCarts().find((entry) => entry.id === params.id);
@@ -60,7 +60,7 @@ export default function CartDetailPage() {
   }
 
   function addItem() {
-    if (!cart || !itemName.trim() || !selectedParticipants.length) return;
+    if (!cart || !itemName.trim()) return;
     const nextCart: Cart = {
       ...cart,
       items: [
@@ -100,45 +100,67 @@ export default function CartDetailPage() {
     persist({ ...cart, items: cart.items.filter((item) => item.id !== itemId), updated_at: new Date().toISOString() });
   }
 
-  function startEditingAssignments(itemId: string) {
+  function startEditingItem(itemId: string) {
     const item = cart?.items.find((entry) => entry.id === itemId);
     if (!item) return;
     setEditingItemId(itemId);
-    setEditingAssignments(item.assignedParticipantIds);
+    setEditingItemDraft({
+      name: item.name,
+      price: String(item.price),
+      quantity: String(item.quantity),
+      assignedParticipantIds: [...item.assignedParticipantIds],
+    });
   }
 
-  function toggleAssignment(participantId: string) {
-    setEditingAssignments((current) =>
-      current.includes(participantId)
-        ? current.filter((id) => id !== participantId)
-        : [...current, participantId],
+  function toggleEditAssignment(participantId: string) {
+    setEditingItemDraft((current) =>
+      current.assignedParticipantIds.includes(participantId)
+        ? { ...current, assignedParticipantIds: current.assignedParticipantIds.filter((id) => id !== participantId) }
+        : { ...current, assignedParticipantIds: [...current.assignedParticipantIds, participantId] },
     );
   }
 
-  function saveAssignments(itemId: string) {
-    if (!cart || editingAssignments.length === 0) return;
+  function saveItemEdits(itemId: string) {
+    if (!cart) return;
+    if (!editingItemDraft.name.trim()) return;
+    const price = Number(editingItemDraft.price);
+    const quantity = Number(editingItemDraft.quantity);
+    if (Number.isNaN(price) || price < 0) return;
+    if (!Number.isFinite(quantity) || quantity < 1) return;
+
     const nextCart = {
       ...cart,
       items: cart.items.map((item) =>
         item.id === itemId
-          ? { ...item, assignedParticipantIds: editingAssignments }
+          ? {
+              ...item,
+              name: editingItemDraft.name.trim(),
+              price,
+              quantity,
+              assignedParticipantIds: editingItemDraft.assignedParticipantIds,
+            }
           : item,
       ),
       updated_at: new Date().toISOString(),
     };
+
     persist(nextCart);
     setEditingItemId(null);
-    setEditingAssignments([]);
+    setEditingItemDraft({ name: "", price: "0", quantity: "1", assignedParticipantIds: [] });
   }
 
   function removeParticipant(participantId: string) {
     if (!cart) return;
-    const hasAssignments = cart.items.some((item) => item.assignedParticipantIds.includes(participantId));
-    if (hasAssignments) {
-      alert("Remove item assignments first before deleting a participant.");
-      return;
-    }
-    persist({ ...cart, participants: cart.participants.filter((participant) => participant.id !== participantId), updated_at: new Date().toISOString() });
+    const nextCart = {
+      ...cart,
+      participants: cart.participants.filter((participant) => participant.id !== participantId),
+      items: cart.items.map((item) => ({
+        ...item,
+        assignedParticipantIds: item.assignedParticipantIds.filter((id) => id !== participantId),
+      })),
+      updated_at: new Date().toISOString(),
+    };
+    persist(nextCart);
   }
 
   function handleDeleteCart() {
@@ -200,7 +222,7 @@ export default function CartDetailPage() {
 
               <div className="mt-5 rounded-2xl border border-blue-100 bg-blue-50 p-4">
                 <p className="text-sm font-semibold text-slate-900">Who is paying for this item?</p>
-                <p className="mt-1 text-sm text-slate-600">Select one or more people for this item. Shared items are split evenly.</p>
+                <p className="mt-1 text-sm text-slate-600">Select the people who should cover this item. Leave all chips unselected to keep it unassigned.</p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   {cart.participants.length === 0 ? (
                     <span className="text-sm text-slate-500">Add at least one participant before assigning items.</span>
@@ -233,32 +255,49 @@ export default function CartDetailPage() {
                           <p className="mt-1 text-sm text-slate-500">{item.quantity} × {formatCurrency(item.price)} = <strong className="text-slate-900">{formatCurrency(item.price * item.quantity)}</strong></p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Button variant="ghost" onClick={() => startEditingAssignments(item.id)}>Edit assignment</Button>
+                          <Button variant="ghost" onClick={() => startEditingItem(item.id)}>Edit</Button>
                           <Button variant="danger" onClick={() => removeItem(item.id)}>Delete</Button>
                         </div>
                       </div>
 
                       {isEditing ? (
                         <div className="mt-4 rounded-2xl border border-blue-100 bg-blue-50 p-4">
-                          <p className="text-sm font-semibold text-slate-900">Assigned to</p>
-                          <div className="mt-3 flex flex-wrap gap-2">
-                            {cart.participants.map((participant) => {
-                              const checked = editingAssignments.includes(participant.id);
-                              return (
-                                <button key={participant.id} type="button" onClick={() => toggleAssignment(participant.id)} className={`rounded-full border px-3 py-2 text-sm font-medium ${checked ? "border-blue-600 bg-blue-600 text-white" : "border-slate-200 bg-white text-slate-700 hover:border-blue-200 hover:bg-blue-100"}`}>
-                                  {participant.name}
-                                </button>
-                              );
-                            })}
+                          <div className="grid gap-4 md:grid-cols-2">
+                            <label className="text-sm text-slate-700 md:col-span-2">
+                              <span className="mb-1 block font-medium">Item name</span>
+                              <Input value={editingItemDraft.name} onChange={(e) => setEditingItemDraft((current) => ({ ...current, name: e.target.value }))} />
+                            </label>
+                            <label className="text-sm text-slate-700">
+                              <span className="mb-1 block font-medium">Price</span>
+                              <Input type="number" min="0" step="0.01" value={editingItemDraft.price} onChange={(e) => setEditingItemDraft((current) => ({ ...current, price: e.target.value }))} />
+                            </label>
+                            <label className="text-sm text-slate-700">
+                              <span className="mb-1 block font-medium">Quantity</span>
+                              <Input type="number" min="1" value={editingItemDraft.quantity} onChange={(e) => setEditingItemDraft((current) => ({ ...current, quantity: e.target.value }))} />
+                            </label>
+                          </div>
+                          <div className="mt-4">
+                            <p className="text-sm font-semibold text-slate-900">Assigned to</p>
+                            <p className="mt-1 text-sm text-slate-600">Choose who should split this item. Leave all selected chips unchecked to mark it unassigned.</p>
+                            <div className="mt-3 flex flex-wrap gap-2">
+                              {cart.participants.map((participant) => {
+                                const checked = editingItemDraft.assignedParticipantIds.includes(participant.id);
+                                return (
+                                  <button key={participant.id} type="button" onClick={() => toggleEditAssignment(participant.id)} className={`rounded-full border px-3 py-2 text-sm font-medium ${checked ? "border-blue-600 bg-blue-600 text-white" : "border-slate-200 bg-white text-slate-700 hover:border-blue-200 hover:bg-blue-100"}`}>
+                                    {participant.name}
+                                  </button>
+                                );
+                              })}
+                            </div>
                           </div>
                           <div className="mt-4 flex flex-wrap gap-2">
-                            <Button onClick={() => saveAssignments(item.id)} disabled={editingAssignments.length === 0}>Save assignment</Button>
-                            <Button variant="ghost" onClick={() => { setEditingItemId(null); setEditingAssignments([]); }}>Cancel</Button>
+                            <Button onClick={() => saveItemEdits(item.id)}>Save item</Button>
+                            <Button variant="ghost" onClick={() => setEditingItemId(null)}>Cancel</Button>
                           </div>
                         </div>
                       ) : (
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          {item.assignedParticipantIds.length === 0 ? <span className="rounded-full bg-amber-50 px-3 py-1 text-xs text-amber-700">No participants assigned</span> : item.assignedParticipantIds.map((id) => (
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                          {item.assignedParticipantIds.length === 0 ? <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">Unassigned</span> : item.assignedParticipantIds.map((id) => (
                             <span key={id} className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-700">{cart.participants.find((participant) => participant.id === id)?.name || id}</span>
                           ))}
                         </div>
